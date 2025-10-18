@@ -10,7 +10,7 @@ import sqlite3
 from typing import Optional, List, Dict
 
 class MediaModel:
-    def __init__(self, db_name: str = 'qbrack.db'):
+    def __init__(self, db_name: str = 'qcms.db'):
         self.db_name = db_name
         self.init_db()
 

@@ -14,6 +14,7 @@ class HomeModel():
 
     def __init__(self, db_name='qcms.db'):
         self.db_name = db_name
+        self.version='0.2.0'
         self.init_db()
 
     def init_db(self):
@@ -26,15 +27,17 @@ class HomeModel():
             exists = cursor.fetchone()
 
             if not exists:
-                cursor.executescript('''
+                conn.executescript('''
                       CREATE TABLE IF NOT EXISTS params(
                           id INTEGER PRIMARY KEY AUTOINCREMENT,
                           name TEXT NOT NULL UNIQUE,
                           value TEXT);
                       INSERT INTO params(name, value) VALUES('creation_date', '17.10.2025 21:30');
                       INSERT INTO params(name, value) VALUES('modification_date', strftime('%d.%m.%Y %H:%M', 'now', 'localtime'));
-                      INSERT INTO params(name, value) VALUES('version', '0.2.0');
-                ''')
+                 ''')
+                cursor.execute('INSERT INTO params(name, value) VALUES(version, ?)', (self.version, ))
+            else:
+                cursor.execute('UPDATE params SET value=? WHERE name="version"', (self.version,) )
 
     def get_param(self, name: str) -> str | None:
         with sqlite3.connect(self.db_name) as conn:
