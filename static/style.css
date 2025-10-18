@@ -1,0 +1,110 @@
+body {
+    background: #f7f7f7;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+/* --- ramka wokół tekstu ---*/
+.box {
+  border: 1px solid #ddd;     /* cienka, jasna ramka */
+  border-radius: 8px;         /* zaokrąglone narożniki */
+  padding: 1rem;              /* oddech dla treści */
+  background-color: transparent;           /* opcjonalnie: białe tło */
+}
+
+
+
+/* --- sekcja komentarzy --- */
+.comment {
+    border-bottom: 1px solid #ddd;
+    padding: 1rem 0;
+}
+
+/* --- identyfikator i nagłówek --- */
+.comment-id {
+    color: #888;
+    font-size: 0.9em;
+    margin-right: 0.3em;
+}
+
+.comment-user {
+    font-weight: 600;
+}
+
+.comment-from {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* --- data --- */
+.comment-header {
+    color: #999;
+    font-size: 0.85em;
+    margin-top: 0.2em;
+}
+
+/* --- treść komentarza --- */
+.comment-content {
+    margin-top: 0.4em;
+    white-space: pre-wrap;
+}
+
+/* --- lekka separacja pierwszego i ostatniego --- */
+.comment:first-child {
+    border-top: 1px solid #ddd;
+}
+
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.left-column {
+    width: 300px;
+    background-color: #eee;
+    padding: 1em;
+}
+
+.right-column {
+    width: 300px;
+    background: #eee;
+   padding: 1rem;
+   position: sticky;
+   top: 0;
+   height: 100vh;
+   display: flex;
+   flex-direction: column; 
+   align-self: flex-start;
+}
+
+.comments-scroll {
+  flex: 1;                    /* zajmij pozostałą wysokość */
+  overflow-y: auto;           /* własny scroll tylko tutaj */
+  padding-right: .5rem;       /* żeby scrollbar nie nachodził na treść */
+}
+.center-column {
+    flex: 1;
+    background: #fff;
+    padding: 2em;
+}
+
+h1 {
+    color: #000;
+}
+
+.footer_data {
+    color: #666;
+    font-size: small;
+}
+
+footer {
+    margin-top: 40px;
+    padding-top: 1px;
+    border-top: 1px solid #ccc;
+    position: fixed;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+}

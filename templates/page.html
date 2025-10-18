@@ -1,0 +1,46 @@
+<!-- templates/page.html -->
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{site_title or "picoCMS"}}  •  {{ page }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="layout">
+    <aside class="left-column">
+      <h3>Menu</h3>
+      <nav>
+        <ul>
+        {% if pages %}
+          {% for p in pages %}
+            <li><a href="{{ url_for('show_page', page=p, lang=locale) }}">{{ p.capitalize() }}</a></li>
+        {% endfor %}
+        {% else %}
+          <p>No content yet</p>
+        {% endif %}
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="center-column">
+      {% if blocks %}
+        {% for block in blocks %}
+          <section class="page-block">{{ block | safe }}</section>
+        {% endfor %}
+      {% else %}
+        <p>No content for page <code>{{ page }}</code> (locale <code>{{ locale }}</code>).</p>
+      {% endif %}
+    </main>
+
+    <aside class="right-column">
+      <div class="comments-scroll">
+          {% include 'comments.html' %}
+      </div>
+    </aside>
+  </div>
+
+  {% include 'footer.html' %}
+</body>
+</html>

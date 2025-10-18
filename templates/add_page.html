@@ -1,0 +1,76 @@
+<!-- templates/add_page.html -->
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ site_title or "Set title" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="layout">
+    <aside class="left-column">
+      <h3>Setup</h3>
+      <p>Locale: {{ locale }}</p>
+    </aside>
+
+    <main class="center-column">
+      {% if not site_title %}
+        <h1>Set site title</h1>
+        <form method="post" action="{{ url_for('add_page', lang=locale) }}">
+          <label>Title<br>
+            <input type="text" name="title" required>
+          </label>
+          <div style="margin-top:1rem">
+            <button type="submit">Save title</button>
+          </div>
+        </form>
+      {% else %}
+        <h1>Site title: {{ site_title }}</h1>
+        <form method="post" action="{{ url_for('add_page', lang=locale) }}">
+          <fieldset style="border:1px solid #ddd;border-radius:8px;padding:1rem">
+            <legend>Add content block</legend>
+
+            <label>Page name<br>
+              <input name="page" list="pages-list" required>
+              <datalist id="pages-list">
+                {% for p in pages %}
+                  <option value="{{ p }}"></option>
+                {% endfor %}
+              </datalist>
+            </label>
+
+         <div style="margin-top:.8rem">
+           <label>Page menu position (integer)<br>
+             <input type="number" name="page_order" required value="0">
+           </label>
+         </div>
+
+            <div style="margin-top:.8rem">
+              <label>Block position (integer)<br>
+                <input type="number" name="position" required>
+              </label>
+            </div>
+
+            <div style="margin-top:.8rem">
+              <label>Block content (HTML allowed)<br>
+                <textarea name="content" rows="8" cols="60" required></textarea>
+              </label>
+            </div>
+
+            <div style="margin-top:1rem">
+              <button type="submit">Add block</button>
+            </div>
+          </fieldset>
+        </form>
+      {% endif %}
+    </main>
+
+    <aside class="right-column">
+      {% include 'comments.html' %}
+    </aside>
+  </div>
+
+  {% include 'footer.html' %}
+</body>
+</html>

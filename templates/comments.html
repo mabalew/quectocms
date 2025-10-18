@@ -1,0 +1,20 @@
+        <div class="comment">
+            <form action="/add_comment" method="POST">
+                <label for="user">Your name:</label>
+                <input type="text" name="user" placeholder="user name" required>
+                <textarea id="comment" name="comment" rows="5" cols="50" placeholder="Your comment here..."></textarea>
+                <button type="submit">Comment</button>
+            </form>
+            <h2>Comments</h2>
+            {% if comments %}
+            {% for comment in comments %}
+            <span class="comment-id">#{{ comment.id }}</span>
+            <span class="comment-user"> {{ comment.user }}</span>
+            <span class="comment-from"> wrote from: {{ comment.ip }}</span>
+            <div class="comment-header">at: {{ comment.creation_date}}: </div>
+            <div class="comment-content">{{ comment.comment}}</div>
+            {% endfor %}
+            {% else %}
+            <p>No comments yet</p>
+            {% endif %}
+        </div>
