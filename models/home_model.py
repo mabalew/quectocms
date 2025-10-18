@@ -22,22 +22,30 @@ class HomeModel():
         Initialization of db and table
         """
         with sqlite3.connect(self.db_name) as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='params'")
-            exists = cursor.fetchone()
-
-            if not exists:
-                conn.executescript('''
-                      CREATE TABLE IF NOT EXISTS params(
-                          id INTEGER PRIMARY KEY AUTOINCREMENT,
-                          name TEXT NOT NULL UNIQUE,
-                          value TEXT);
-                      INSERT INTO params(name, value) VALUES('creation_date', '17.10.2025 21:30');
-                      INSERT INTO params(name, value) VALUES('modification_date', strftime('%d.%m.%Y %H:%M', 'now', 'localtime'));
-                      INSERT INTO params(name, value) VALUES(version, ?);
-                 ''', (self.version, ))
-            else:
-                cursor.execute('UPDATE params SET value=? WHERE name="version"', (self.version,) )
+            # schema – always
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS params(
+                    id    INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name  TEXT NOT NULL UNIQUE,
+                    value TEXT
+                )
+            """)
+    
+            # default entries - only if they don't exists
+            conn.execute("""
+                INSERT OR IGNORE INTO params(name, value)
+                VALUES('creation_date', strftime('%d.%m.%Y %H:%M', 'now', 'localtime'))
+            """)
+            conn.execute("""
+                INSERT OR IGNORE INTO params(name, value)
+                VALUES('modification_date', strftime('%d.%m.%Y %H:%M', 'now', 'localtime'))
+            """)
+            
+            # UPSERT - set always the most current version
+            conn.execute("""
+                INSERT INTO params(name, value) VALUES('version', ?)
+                ON CONFLICT(name) DO UPDATE SET value=excluded.value
+            """, (self.version,))
 
     def get_param(self, name: str) -> str | None:
         with sqlite3.connect(self.db_name) as conn:
