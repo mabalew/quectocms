@@ -8,12 +8,13 @@ It focuses on simplicity and small size — everything is stored in one SQLite d
 ## Features
 
 - Minimal architecture: models, services, and Jinja2 templates.  
-- Pages built from ordered blocks (`pages` table).  
+- Pages composed of ordered content blocks stored in SQLite  (`pages` table).  
 - Comment system with timestamps.  
 - Global parameters (`params` table).  
 - Media uploads with SHA-256 deduplication and date-based folders.  
 - Works entirely without JavaScript.  
 - Clean layout with left menu, center content, and right comment panel.
+- NEW: HTTP Basic Auth for admin routes (no cookies; nothing stored on client side!)  
 
 ---
 
@@ -22,6 +23,7 @@ It focuses on simplicity and small size — everything is stored in one SQLite d
 ```
 /
 ├─ app.py                  — Flask application entry point
+├─ auth.py                 — Authentication module
 ├─ controllers/
 │   └─ app_controller.py   — Route registration (delegates to services)
 ├─ services/
@@ -119,6 +121,35 @@ It focuses on simplicity and small size — everything is stored in one SQLite d
 - Recent uploads (today and yesterday) are listed for quick reuse.
 
 ---
+## Admin protection (HTTP Basic Auth, no cookies)
+
+HTTP Basic Auth provides access control without any cookies or client-side storage.  
+Credentials are sent in the \`Authorization\` header and kept only in browser memory during the session.  
+No data is written to the user’s computer. Always use **HTTPS**.
+
+
+1. Install Werkzeug if needed:  
+   ```bash
+   pip install werkzeug
+   ```
+
+2. Generate a password hash in Python:  
+   ```bash
+   from werkzeug.security import generate_password_hash
+   print(generate_password_hash("YourStrongPassword"))
+   ```
+
+3. Set environment variables (include the entire hash generated in pt. 2):  
+   ```bash
+   export ADMIN_USER='admin'
+   export ADMIN_PASS_HASH='scrypt:32768:8:1$uy3R3TRf$...full_hash_here...'
+   ```
+   
+Notes:
+- Works entirely without cookies or local storage.  
+- With HTTPS, credentials are protected in transit.  
+- To change the password, regenerate the hash and restart the app. 
+
 
 ## Installation
 
@@ -160,6 +191,7 @@ Visit `http://localhost:5000` in a browser.
 - The upload directory is date-based to prevent large flat folders.  
 - Deduplication is deterministic via SHA-256; re-uploading the same file reuses the same path.  
 - No JavaScript is required for any functionality.
+- No data stored on client side.
 
 ---
 

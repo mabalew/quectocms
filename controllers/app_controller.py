@@ -9,6 +9,7 @@ from flask import  request, jsonify, redirect, url_for
 from services.comment_service import CommentService
 from services.home_service import HomeService
 from services.page_service import PageService
+from auth import requires_basic_auth
 
 class AppController:
     """ Application controller """
@@ -36,10 +37,12 @@ class AppController:
             return self.page_service.render_page(page)
         
         @self.app.route('/add_page', methods=['GET', 'POST'])
+        @requires_basic_auth
         def add_page():
             return self.page_service.add_page_response()
         
         @self.app.route('/del_page/<page_id>')
+        @requires_basic_auth
         def del_page(page_id: int):
             return self.page_service.delete(page_id)
         
