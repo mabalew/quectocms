@@ -1,135 +1,168 @@
 # quectoCMS
 
-quectoCMS is a minimalist, fileless micro content management system written in Python 3, Flask, and SQLite3.  
-It is designed to stay small and transparent — a CMS you can fully understand at first glance — while still managing pages, comments, and basic multilingual content.
+quectoCMS is a minimalist CMS built with Python 3, Flask, and SQLite.  
+It focuses on simplicity and small size — everything is stored in one SQLite database and rendered through plain HTML templates.
 
 ---
 
 ## Features
 
-- Simple micro-architecture: single SQLite database, no heavy frameworks.
-- Page blocks stored in the database with ordering (`position`) and optional locale.
-- Comments module for visitor interaction.
-- Key–value parameters table for global settings (e.g., `title`, `version`).
-- Automatic redirect to initial setup when no site title is defined.
-- Dynamic menu generated from existing pages.
-- Plain HTML forms only, no JavaScript required. No JS at all, tbh.
-- Clean three-column layout using simple CSS.
+- Minimal architecture: models, services, and Jinja2 templates.  
+- Pages built from ordered blocks (`pages` table).  
+- Comment system with timestamps.  
+- Global parameters (`params` table).  
+- Media uploads with SHA-256 deduplication and date-based folders.  
+- Works entirely without JavaScript.  
+- Clean layout with left menu, center content, and right comment panel.
 
 ---
 
 ## Project structure
-```text
-  /
-  ├─ app.py                  — Flask application entry point
-  ├─ controllers/
-  │   └─ app_controller.py   — Route registration (delegates to services)
-  ├─ services/
-  │   ├─ page_service.py     — Page rendering, setup flow, block creation
-  │   ├─ comment_service.py  — Comment handling
-  │   └─ home_service.py     — Global params (title, version, footer data)
-  ├─ models/
-  │   ├─ page_model.py       — CRUD for table "pages"
-  │   ├─ comment_model.py    — CRUD for table "comments"
-  │   └─ home_model.py       — CRUD for table "params"
-  ├─ templates/
-  │   ├─ page.html           — Main layout
-  │   ├─ add_page.html       — Setup and block creation form
-  │   ├─ comments.html       — Comments section
-  │   └─ footer.html         — Common footer
-  └─ static/
-      └─ style.css           — Basic layout and styling
+
 ```
----
-
-## Installation
-
-1) Create and activate a virtual environment, then install Flask:
-
-    python3 -m venv myenv
-    source myenv/bin/activate
-    pip install flask
-
-2) Start the application:
-
-    python app.py
-
-3) Open http://localhost:5000 in your browser.
+/
+├─ app.py                  — Flask application entry point
+├─ controllers/
+│   └─ app_controller.py   — Route registration (delegates to services)
+├─ services/
+│   ├─ page_service.py     — Page rendering, setup flow, block creation, media upload
+│   ├─ comment_service.py  — Comment handling
+│   ├─ home_service.py     — Global params (title, version, footer data)
+│   └─ media_service.py    — Optional separation for upload logic
+├─ models/
+│   ├─ page_model.py       — CRUD for table "pages"
+│   ├─ comment_model.py    — CRUD for table "comments"
+│   ├─ home_model.py       — CRUD for table "params"
+│   └─ media_model.py      — CRUD for table "media" (SHA-256, path, mime)
+├─ templates/
+│   ├─ page.html           — Main layout
+│   ├─ add_page.html       — Setup and block creation form + media upload
+│   ├─ comments.html       — Comments section
+│   └─ footer.html         — Common footer
+└─ static/
+    ├─ style.css           — Basic layout and styling
+    └─ uploads/            — Date-based media storage (YYYY/MM/DD/…)
+```
 
 ---
 
 ## Database schema (SQLite)
 
-Table: pages  
-- id: INTEGER PRIMARY KEY AUTOINCREMENT  
-- page: TEXT — logical page name  
-- page_order: INTEGER — order of pages in menu (per page)  
-- locale: TEXT — language code (e.g., pl, en)  
-- content: TEXT — HTML/Markdown block  
-- position: INTEGER — block order within a page (ascending)
+### Table: `pages`
 
-Table: comments  
-- id: INTEGER PRIMARY KEY AUTOINCREMENT  
-- ip: TEXT — visitor IP address  
-- creation_date: TEXT — timestamp (local)  
-- user: TEXT — optional nickname or email  
-- comment: TEXT — comment content
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INTEGER PRIMARY KEY AUTOINCREMENT | unique ID |
+| `page` | TEXT | logical page name |
+| `page_order` | INTEGER | order of pages in menu |
+| `locale` | TEXT | language code (e.g., `pl`, `en`) |
+| `content` | TEXT | HTML or Markdown block |
+| `position` | INTEGER | block order within page |
 
-Table: params  
-- id: INTEGER PRIMARY KEY AUTOINCREMENT  
-- name: TEXT UNIQUE — parameter key (e.g., "title")  
-- value: TEXT — stored value
+### Table: `comments`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INTEGER PRIMARY KEY AUTOINCREMENT | unique ID |
+| `ip` | TEXT | visitor IP address |
+| `creation_date` | TEXT | timestamp (local) |
+| `user` | TEXT | optional nickname or email |
+| `comment` | TEXT | comment content |
+
+### Table: `params`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INTEGER PRIMARY KEY AUTOINCREMENT | unique ID |
+| `name` | TEXT UNIQUE | parameter key (e.g., `title`) |
+| `value` | TEXT | stored value |
+
+### Table: `media`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INTEGER PRIMARY KEY AUTOINCREMENT | unique ID |
+| `sha256` | TEXT UNIQUE | SHA-256 of file content |
+| `rel_path` | TEXT UNIQUE | relative path under `static/` |
+| `mime` | TEXT | MIME type (e.g., `image/jpeg`) |
+| `uploaded_at` | TEXT | timestamp (local) |
 
 ---
 
 ## Usage flow
 
-1) First run initializes the SQLite database.  
-2) If there is no site title in `params` (`name = "title"`), the app redirects to `/add_page`.  
-3) Enter the site title and submit.  
-4) Then add content blocks by providing:
-   - page name,
-   - block position (integer),
-   - block content (HTML allowed).
-5) Visit `/` to render the homepage using stored blocks.  
-6) Visitors can add comments in the right-side section.
+1. On first run, the SQLite database is initialized automatically.  
+2. If no `title` exists in `params`, the user is redirected to `/add_page`.  
+3. The title form appears first; once saved, block creation fields appear:  
+   - page name  
+   - block position (integer)  
+   - block content (HTML allowed)  
+4. `/` or `/page/<page>` renders all blocks ordered by `position`.  
+5. The right column lists comments and allows new ones.  
+6. The footer shows data from `params` (version, creation, modification dates).  
+7. The same page includes an upload form for images.
 
 ---
 
-## Data persistence
+## Media uploads
 
-All content and parameters are stored in a single file `qcms.db` located in the working directory.  
-SQLite ensures transactional integrity and requires no additional setup.
-
----
-
-## Customization
-
-- Styling: edit `static/style.css`.  
-- Templates: modify Jinja2 files under `templates/`.  
-- Layout: the default view is a left menu, center content, and right comments column.
-
----
-
-## Minimal API endpoints
-
-- GET `/` — render homepage.  
-- GET `/page/<page>` — render a given page.  
-- GET `/add_page` — show setup or block creation form (depending on whether a title exists).  
-- POST `/add_page` — save title or create a new content block.  
-- POST `/add_comment` — submit a comment.  
-- GET `/get_comments` — return comments as JSON.
+- The upload form (in `add_page.html`) lets the user select a file.  
+- Server workflow:
+  1. Compute SHA-256 of the uploaded file.  
+  2. Check the `media` table — if the hash exists, return the existing path.  
+  3. Otherwise, save the file to `static/uploads/YYYY/MM/DD/<sha-prefix>_<filename>`  
+     and insert a record in `media`.  
+- The app displays a copyable image path for easy embedding:
+  ```
+  <img src="/static/uploads/2025/10/18/abcd1234_image.jpg" alt="" />
+  ```
+- Recent uploads (today and yesterday) are listed for quick reuse.
 
 ---
 
-## Philosophy
+## Installation
 
-"If you can't explain your CMS in 30 seconds, it's too complicated."
+```
+python3 -m venv myenv
+source myenv/bin/activate
+pip install flask
+```
 
-quectoCMS demonstrates that a dynamic website does not need heavy frameworks or admin panels — only a small database, a few templates, and a clear structure.
+---
+
+## Running the app
+
+```
+python app.py
+```
+
+Visit `http://localhost:5000` in a browser.
+
+---
+
+## Endpoints
+
+| Method | Route | Description |
+|--------|--------|-------------|
+| GET | `/` | Render homepage |
+| GET | `/page/<page>` | Render specific page |
+| GET / POST | `/add_page` | Setup and content block creation |
+| POST | `/add_comment` | Add new comment |
+| GET | `/get_comments` | Return comments as JSON |
+| POST | `/upload_media` | Upload image (SHA-256, deduplicate, return path) |
+
+---
+
+## Notes
+
+- `page_order` sorts pages in the menu; `position` sorts blocks within a page.  
+- Media files are never stored as BLOBs, only as file paths in `static/uploads`.  
+- The upload directory is date-based to prevent large flat folders.  
+- Deduplication is deterministic via SHA-256; re-uploading the same file reuses the same path.  
+- No JavaScript is required for any functionality.
 
 ---
 
 ## License
 
-MIT License © 2025 mabalew
+MIT License © 2025 Mariusz Balewski / TYO Labs

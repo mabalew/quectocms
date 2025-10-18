@@ -33,7 +33,7 @@ class HomeModel():
                           value TEXT);
                       INSERT INTO params(name, value) VALUES('creation_date', '17.10.2025 21:30');
                       INSERT INTO params(name, value) VALUES('modification_date', strftime('%d.%m.%Y %H:%M', 'now', 'localtime'));
-                      INSERT INTO params(name, value) VALUES('version', '0.1.0');
+                      INSERT INTO params(name, value) VALUES('version', '0.2.0');
                 ''')
 
     def get_param(self, name: str) -> str | None:
