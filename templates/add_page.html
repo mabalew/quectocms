@@ -64,6 +64,45 @@
           </fieldset>
         </form>
       {% endif %}
+    
+        <!-- Add media form -->
+    <section style="margin-top:2rem">
+      <h2>Upload image</h2>
+      <form method="post" action="{{ url_for('upload_media', lang=locale) }}" enctype="multipart/form-data">
+        <fieldset class="box">
+          <legend>Select file</legend>
+          <input type="file" name="file" required>
+          <div style="margin-top:1rem">
+            <button type="submit">Upload</button>
+          </div>
+        </fieldset>
+      </form>
+
+      {% if media_error %}
+        <p style="color:#b00; margin-top:1rem;">{{ media_error }}</p>
+      {% endif %}
+
+      {% if media_result %}
+        <div class="box" style="margin-top:1rem">
+          <p>File URL (copy & paste into your content):</p>
+          <pre style="white-space:pre-wrap;word-break:break-all;"><code>{{ media_result.url }}</code></pre>
+          <p>SHA-256: <code>{{ media_result.sha256 }}</code> {% if media_result.deduplicated %}(deduplicated){% endif %}</p>
+        </div>
+      {% endif %}
+
+      <h3 style="margin-top:2rem;">Recent uploads (today & yesterday)</h3>
+      {% if recent_media and recent_media|length > 0 %}
+        <ul>
+          {% for m in recent_media %}
+                <li>
+                  <code>{{ m.url }}</code> — {{ m.mime }} — {{ m.uploaded_at }}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p>No recent files.</p>
+          {% endif %}
+        </section>
     </main>
 
     <aside class="right-column">

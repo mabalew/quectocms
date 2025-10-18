@@ -5,11 +5,18 @@ Created on Sat Oct 18 01:20:19 2025
 
 @author: mariusz
 """
+import os, mimetypes, datetime
+from pathlib import Path
 from flask import request, render_template, redirect, url_for
 
 from models.page_model import PageModel
 from services.comment_service import CommentService
 from services.home_service import HomeService
+from services.media_service import MediaService
+
+ALLOWED_EXT = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
+STATIC_ROOT = 'static'
+UPLOAD_BASE = 'uploads'  # will be: static/uploads/YYYY/MM/DD/...
 
 class PageService:
     """ Service for pages in my Micro CMS """
@@ -17,6 +24,7 @@ class PageService:
         self.page_model = PageModel()
         self.comment_service = CommentService()
         self.home_service = HomeService()
+        self.media_service = MediaService()
 
     def add(self, page: str, locale: str, position: int, content: str):
         return self.page_model.add(page, locale, position, content)   
@@ -122,3 +130,70 @@ class PageService:
 
     def delete(self, page_id: int) -> int:
         return self.page_model.delete(page_id)
+    
+    def media_upload_response(self):
+        locale = self.detect_locale()
+        # Dane do kontekstu (żeby stopka/komentarze i menu były dostępne także po POST)
+        pages = self.page_model.get_pages_list()
+        comments = self.comment_service.get_all()
+        footer_data = self.home_service.get_footer_data() or {}
+        site_title = self.home_service.home_model.get_param('title')
+
+        file = request.files.get('file')
+        media_result = None
+        error = None
+    
+        if not file or not file.filename:
+            error = "No file selected."
+        else:
+            original = self.media_service._norm_filename(file.filename)
+            name, ext = os.path.splitext(original)
+            if ext not in ALLOWED_EXT:
+                error = "Unsupported extension."
+            else:
+                sha = self.media_service._calc_sha256(file)
+                existing = self.media_service.get_by_hash(sha)
+                if existing:
+                    url = f"/static/{existing['rel_path']}"
+                    media_result = {"url": url, "sha256": sha, "mime": existing['mime'], "deduplicated": True}
+                else:
+                    # przygotowanie ścieżki docelowej
+                    rel_dir = self._date_rel_dir()
+                    prefix = sha[:12]  # czytelny, deterministyczny prefiks z SHA-256
+                    rel_name = f"{prefix}_{name}{ext}"
+                    rel_path = f"{rel_dir}/{rel_name}"
+                    abs_dir = Path(STATIC_ROOT) / rel_dir
+                    abs_dir.mkdir(parents=True, exist_ok=True)
+                    abs_path = Path(STATIC_ROOT) / rel_path
+    
+                    # zapis pliku
+                    file.save(abs_path)
+    
+                    # MIME
+                    mime = mimetypes.types_map.get(ext, 'application/octet-stream')
+    
+                    # rejestr w DB
+                    self.media_service.insert(sha, rel_path, mime)
+                    url = f"/static/{rel_path}"
+                    media_result = {"url": url, "sha256": sha, "mime": mime, "deduplicated": False}
+    
+        recent_media = [
+            {"url": f"/static/{m['rel_path']}", "mime": m["mime"], "uploaded_at": m["uploaded_at"]}
+            for m in self.media_service.recent_from_today_and_yesterday()
+        ]
+        # Render tej samej strony add_page (bez PRG – świadomie, bo chcesz od razu pokazać wynik i listę)
+        return render_template(
+            'add_page.html',
+            locale=locale,
+            site_title=site_title,   # może być None – wtedy u góry pokaże się formularz tytułu
+            pages=pages,
+            comments=comments,
+            footer_data=footer_data,
+            media_result=media_result,
+            media_error=error,
+            recent_media=recent_media
+            )
+    
+    def _date_rel_dir(self) -> str:
+        now = datetime.datetime.now()
+        return f"{UPLOAD_BASE}/{now.year:04d}/{now.month:02d}/{now.day:02d}"

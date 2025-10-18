@@ -56,6 +56,10 @@ class AppController:
         def get_comments():
             comments = self.comment_service.get_all()
             return jsonify({ 'comments': comments })
+        
+        @self.app.route('/upload_media', methods=['POST'])
+        def upload_media():
+            return self.page_service.media_upload_response()
 
     
 
