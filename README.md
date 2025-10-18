@@ -19,7 +19,7 @@ It is designed to stay small and transparent — a CMS you can fully understand 
 ---
 
 ## Project structure
-
+```text
 qbrack-web/
   ├─ app.py                  — Flask application entry point
   ├─ controllers/
@@ -39,7 +39,7 @@ qbrack-web/
   │   └─ footer.html         — Common footer
   └─ static/
       └─ style.css           — Basic layout and styling
-
+```
 ---
 
 ## Installation
