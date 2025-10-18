@@ -20,7 +20,7 @@ It is designed to stay small and transparent — a CMS you can fully understand 
 
 ## Project structure
 ```text
-qbrack-web/
+  /
   ├─ app.py                  — Flask application entry point
   ├─ controllers/
   │   └─ app_controller.py   — Route registration (delegates to services)
