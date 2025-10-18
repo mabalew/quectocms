@@ -10,7 +10,7 @@ import sqlite3
 
 class PageModel:
     """ Micro CMS page model """
-    def __init__(self, db_name = 'qbrack.db'):
+    def __init__(self, db_name = 'qcms.db'):
         self.db_name = db_name
         self.init_db()
         

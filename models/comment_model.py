@@ -11,7 +11,7 @@ import sqlite3
 class CommentModel:
     """ Comments data model """
 
-    def __init__(self, db_name='qbrack.db'):
+    def __init__(self, db_name='qcms.db'):
         self.db_name = db_name
         self.init_db()
 
