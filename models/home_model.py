@@ -34,8 +34,8 @@ class HomeModel():
                           value TEXT);
                       INSERT INTO params(name, value) VALUES('creation_date', '17.10.2025 21:30');
                       INSERT INTO params(name, value) VALUES('modification_date', strftime('%d.%m.%Y %H:%M', 'now', 'localtime'));
-                 ''')
-                cursor.execute('INSERT INTO params(name, value) VALUES(version, ?)', (self.version, ))
+                      INSERT INTO params(name, value) VALUES(version, ?);
+                 ''', (self.version, ))
             else:
                 cursor.execute('UPDATE params SET value=? WHERE name="version"', (self.version,) )
 
