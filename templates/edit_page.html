@@ -1,0 +1,123 @@
+<!-- templates/edit_page.html -->
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ site_title or "qcms" }} • Edit: {{ page }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .block-card { margin-bottom: 1rem; }
+    .block-card header { font-weight: 600; margin-bottom: .4rem; }
+    .block-actions { display:flex; gap:.5rem; margin-top:.6rem; }
+    .muted { color:#666; font-size:.9em; }
+    .inline-form { display:inline; }
+    .fields-grid { display:grid; grid-template-columns: 160px 1fr; gap:.6rem 1rem; align-items:start; }
+    .fields-grid label { align-self:center; }
+    .fields-grid .full { grid-column: 1 / -1; }
+    textarea { width: 70ch; min-height: 180px; font-family: monospace; }
+    .danger { border-color:#d55; }
+    .btn-danger { background:#b31b1b; color:#fff; border:none; padding:.5rem .8rem; border-radius:.5rem; cursor:pointer; }
+    .btn-primary { background:#333; color:#fff; border:none; padding:.5rem .8rem; border-radius:.5rem; cursor:pointer; }
+    .btn-secondary { background:#eee; color:#222; border:1px solid #ccc; padding:.5rem .8rem; border-radius:.5rem; cursor:pointer; }
+    .hr { height:1px; background:#e5e5e5; border:0; margin:1rem 0; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="left-column">
+      <h3>Menu</h3>
+      <nav>
+        <ul>
+        {% if pages %}
+          {% for p in pages %}
+            <li><a href="{{ url_for('show_page', page=p, lang=locale) }}">{{ p.capitalize() }}</a></li>
+          {% endfor %}
+        {% else %}
+          <li class="muted">No content yet</li>
+        {% endif %}
+        </ul>
+      </nav>
+      <div class="admin_link">
+        <a href="{{ url_for('show_page', page='admin', lang=locale) }}">Admin</a>
+      </div>
+    </aside>
+
+    <main class="center-column">
+      <h1>Edit page: <code>{{ page }}</code></h1>
+      <p class="muted">Locale: <code>{{ locale }}</code></p>
+
+      {% if blocks and blocks|length > 0 %}
+        {% for block in blocks %}
+          <section class="box block-card">
+            <header>
+              Block ID: <code>#{{ block.id }}</code>
+              &nbsp;•&nbsp; Current position: <code>{{ block.position }}</code>
+            </header>
+
+            <!-- SAVE (update only this block) -->
+            <form class="save-form" method="post" action="{{ url_for('save_block', block_id=block.id) }}">
+              <div class="fields-grid">
+                <label for="position_{{ block.id }}">Position</label>
+                <input style="width: 4ch; text-align: right;"  id="position_{{ block.id }}" name="position" type="number" value="{{ block.position }}" required>
+
+                <label class="full" for="content_{{ block.id }}">Content (HTML)</label>
+                <textarea id="content_{{ block.id }}" name="content" rows="10" required>{{ block.content }}</textarea>
+
+                <!-- hidden fields to preserve context -->
+                <input type="hidden" name="page" value="{{ page }}">
+                <input type="hidden" name="locale" value="{{ locale }}">
+              </div>
+
+              <div class="block-actions">
+                <button type="submit" class="btn-primary">Save</button>
+                <a class="btn-secondary" href="{{ url_for('show_page', page=page, lang=locale) }}">Preview</a>
+              </div>
+            </form>
+
+            <hr class="hr"/>
+
+            <!-- DELETE (remove only this block) -->
+            <form class="inline-form" method="post" action="{{ url_for('delete_block', block_id=block.id) }}" onsubmit="return confirm('Delete block #{{ block.id }}?');">
+              <input type="hidden" name="page" value="{{ page }}">
+              <input type="hidden" name="locale" value="{{ locale }}">
+              <button type="submit" class="btn-danger">Delete</button>
+            </form>
+          </section>
+        {% endfor %}
+      {% else %}
+        <p>No blocks for page <code>{{ page }}</code> (locale <code>{{ locale }}</code>).</p>
+      {% endif %}
+
+      <section class="box" style="margin-top:1.5rem">
+        <h2>Add new block</h2>
+        <form method="post" action="{{ url_for('add_page', lang=locale) }}">
+          <div class="fields-grid">
+            <label for="new_position">Position</label>
+            <input style="width: 4ch; text-align: right;" id="new_position" name="position" type="number" required>
+
+            <label class="full" for="new_content">Content (HTML)</label>
+            <textarea id="new_content" name="content" rows="8" required></textarea>
+
+            <!-- fixed page + optional page_order (keep current menu order) -->
+            <input type="hidden" name="page" value="{{ page }}">
+            <input type="hidden" name="page_order" value="0">
+          </div>
+          <div class="block-actions">
+            <button type="submit" class="btn-primary">Add block</button>
+            <a class="btn-secondary" href="{{ url_for('show_page', page=page, lang=locale) }}">Back to page</a>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <aside class="right-column">
+      <div class="comments-scroll">
+        {% include 'comments.html' %}
+      </div>
+    </aside>
+  </div>
+
+  {% include 'footer.html' %}
+</body>
+</html>

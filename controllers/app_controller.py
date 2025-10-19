@@ -46,6 +46,26 @@ class AppController:
         def del_page(page_id: int):
             return self.page_service.delete(page_id)
         
+        @self.app.route('/edit/<page>')
+        @requires_basic_auth
+        def edit_page(page):
+            return self.page_service.render_edit_page(page)
+        
+        @self.app.route('/admin/block/<int:block_id>/save', methods=['POST'])
+        @requires_basic_auth
+        def save_block(block_id):
+            return self.page_service.save_block(block_id)
+        
+        @self.app.route('/admin/block/<int:block_id>/delete', methods=['POST'])
+        @requires_basic_auth
+        def delete_block(block_id):
+            return self.page_service.delete_block(block_id)
+        
+        @self.app.route('/delete/<page>')
+        @requires_basic_auth
+        def delete(page: str):
+            return self.page_service.delete_by_name(page)
+        
         @self.app.route('/add_comment', methods=['POST'])
         def add_comment():
             """ Adding new comment """
@@ -63,6 +83,11 @@ class AppController:
         @self.app.route('/upload_media', methods=['POST'])
         def upload_media():
             return self.page_service.media_upload_response()
+        
+        @self.app.route('/admin')
+        @requires_basic_auth
+        def admin_page():
+            return self.page_service.render_page('admin')
 
     
 

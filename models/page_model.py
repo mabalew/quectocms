@@ -6,6 +6,7 @@ Created on Sat Oct 18 00:49:38 2025
 @author: mariusz
 """
 
+from typing import Dict, List
 import sqlite3
 
 class PageModel:
@@ -69,6 +70,16 @@ class PageModel:
             conn.execute('DELETE FROM pages WHERE id=?', (page_id,))
         return {'deleted_id': page_id}
     
+    def delete_by_name(self, page_name: int) -> int:
+        with sqlite3.connect(self.db_name) as conn:
+            conn.execute('DELETE FROM pages WHERE page=?', (page_name,))
+        return {'deleted': page_name}
+    
+    def edit(self, page: str):
+        with sqlite3.connect(self.db_name) as conn:
+            conn.execute('DELETE FROM pages WHERE page=?', (page, ))
+        return
+    
     def get_pages_list(self) -> list[str]:
         with sqlite3.connect(self.db_name) as conn:
             #cursor = conn.execute('SELECT DISTINCT page FROM pages ORDER BY page_order ASC')
@@ -79,3 +90,29 @@ class PageModel:
                                   ORDER BY ord ASC
                          """)
             return [page[0] for page in cursor.fetchall()]
+        
+    def get_blocks_for_page(self, page: str, locale: str) -> List[Dict]:
+        """Returns list of blocks (id, position, content) for a given page/locale."""
+        with sqlite3.connect(self.db_name) as conn:
+            cur = conn.execute("""
+                               SELECT id, position, content
+                               FROM pages
+                               WHERE page=? AND locale=?
+                               ORDER BY position ASC, id ASC
+                               """, (page, locale))
+            rows = cur.fetchall()
+            return [{"id": r[0], "position": r[1], "content": r[2]} for r in rows]
+
+    def update_block(self, block_id: int, position: int, content: str) -> None:
+        """Updates single block."""
+        with sqlite3.connect(self.db_name) as conn:
+            conn.execute("""
+                         UPDATE pages
+                         SET position=?, content=?
+                         WHERE id=?
+                         """, (int(position), content, int(block_id)))
+
+    def delete_block_by_id(self, block_id: int) -> None:
+        """Deletes signle block by its id."""
+        with sqlite3.connect(self.db_name) as conn:
+            conn.execute("DELETE FROM pages WHERE id=?", (int(block_id),))

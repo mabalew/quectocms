@@ -23,18 +23,25 @@
         </ul>
       </nav>
       <div class="admin_link">
-        <a href="{{ url_for('admin_page', lang=locale) }}">Admin</a>
+        <a href="{{ url_for('show_page', page='admin', lang=locale) }}">Admin</a>
      </div>
     </aside>
 
     <main class="center-column">
-      {% if blocks %}
-        {% for block in blocks %}
-          <section class="page-block">{{ block | safe }}</section>
-        {% endfor %}
-      {% else %}
-        <p>No content for page <code>{{ page }}</code> (locale <code>{{ locale }}</code>).</p>
-      {% endif %}
+        <fieldset class="box">
+            <legend>Page actions</legend>
+                <div class="box"><a href="/add_page">Add a page</a></div>
+                <fieldset class="box" style="margin-top: 20px">
+                    <legend>Edit or delete page</legend>
+                  {% if pages %}
+                      {% for p in pages %}
+                          <a href="{{ url_for('show_page', page=p, lang=locale) }}">{{ p.capitalize() }}</a>&nbsp;<a href="/edit/{{p}}">Edit</a>&nbsp;<a href="/delete/{{p}}">Delete</a>
+                      {% endfor %}
+                  {% else %}
+                      <p>No content yet</p>
+                  {% endif %}
+                </fieldset>
+        </fieldset>
     </main>
 
     <aside class="right-column">
