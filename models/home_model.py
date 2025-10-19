@@ -14,7 +14,7 @@ class HomeModel():
 
     def __init__(self, db_name='qcms.db'):
         self.db_name = db_name
-        self.version='0.2.0'
+        self.version='0.2.1'
         self.init_db()
 
     def init_db(self):

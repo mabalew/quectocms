@@ -83,6 +83,10 @@ class PageService:
         pages = self.page_model.get_pages_list()
         comments = self.comment_service.get_all()
         footer_data = self.home_service.get_footer_data()
+        recent_media = [
+            {"url": f"/static/{m['rel_path']}", "mime": m["mime"], "uploaded_at": m["uploaded_at"]}
+            for m in self.media_service.recent_from_today_and_yesterday()
+        ]
 
         if request.method == 'POST':
             # if there's not title, try to set it up
@@ -98,6 +102,7 @@ class PageService:
                                            site_title=None,
                                            pages=pages,
                                            comments=comments,
+                                           recent_media=recent_media,
                                            footer_data=footer_data
                                            )
 
@@ -116,6 +121,7 @@ class PageService:
                                    site_title=site_title,
                                    pages=pages,
                                    comments=comments,
+                                   recent_media=recent_media,
                                    footer_data=footer_data
                                    )
 
@@ -125,6 +131,7 @@ class PageService:
                                site_title=site_title,
                                pages=pages,
                                comments=comments,
+                               recent_media=recent_media,
                                footer_data=footer_data
                                )
 

@@ -12,6 +12,18 @@
     <aside class="left-column">
       <h3>Setup</h3>
       <p>Locale: {{ locale }}</p>
+            <h3>Menu</h3>
+            <nav>
+              <ul>
+              {% if pages %}
+                {% for p in pages %}
+                  <li><a href="{{ url_for('show_page', page=p, lang=locale) }}">{{ p.capitalize() }}</a></li>
+              {% endfor %}
+              {% else %}
+                <p>No content yet</p>
+              {% endif %}
+              </ul>
+            </nav>
     </aside>
 
     <main class="center-column">

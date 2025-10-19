@@ -56,6 +56,7 @@ class MediaModel:
                 ORDER BY uploaded_at DESC
             """)
             rows = cur.fetchall()
+            print(rows)
         return [{"id": r[0], "sha256": r[1], "rel_path": r[2], "mime": r[3], "uploaded_at": r[4]} for r in rows]
     
 
