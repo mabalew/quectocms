@@ -13,8 +13,13 @@ It focuses on simplicity and small size — everything is stored in one SQLite d
 - Global parameters (`params` table).  
 - Media uploads with SHA-256 deduplication and date-based folders.  
 - Works entirely without JavaScript.  
-- Clean layout with left menu, center content, and right comment panel.
-- NEW: HTTP Basic Auth for admin routes (no cookies; nothing stored on client side!)  
+- Clean, responsive CSS-based layout with left menu, center content, and right comment panel.
+- No JavaScript dependencies, no front-end frameworks
+- HTTP Basic Auth for admin routes (no cookies; nothing stored on client side!)
+- Admin interface for:
+  - Adding new pages  
+  - Editing and deleting existing pages  
+  - Adding, editing, and deleting individual content blocks  
 
 ---
 
@@ -39,6 +44,8 @@ It focuses on simplicity and small size — everything is stored in one SQLite d
 ├─ templates/
 │   ├─ page.html           — Main layout
 │   ├─ add_page.html       — Setup and block creation form + media upload
+│   ├─ admin.html          — Admin home (page list and actions)
+│   ├─ edit_page.html      — Block editing interface (per page)
 │   ├─ comments.html       — Comments section
 │   └─ footer.html         — Common footer
 └─ static/
@@ -93,17 +100,32 @@ It focuses on simplicity and small size — everything is stored in one SQLite d
 
 ## Usage flow
 
-1. On first run, the SQLite database is initialized automatically.  
-2. If no `title` exists in `params`, the user is redirected to `/add_page`.  
-3. The title form appears first; once saved, block creation fields appear:  
+1. **First run:**
+   The SQLite database is initialized automatically
+   If the database does not contain a `title` in `params`, the app redirects to `/add_page`.  
+   The title form appears first; once saved, block creation fields appear:  
    - page name  
    - block position (integer)  
-   - block content (HTML allowed)  
-4. `/` or `/page/<page>` renders all blocks ordered by `position`.  
-5. The right column lists comments and allows new ones.  
-6. The footer shows data from `params` (version, creation, modification dates).  
-7. The same page includes an upload form for images.
+   - block content (HTML allowed)
+   
+2. **Normal usage:**  
+   - Visit `/` to see public pages.  
+   - Add or manage content through `/admin` (requires Basic Auth).
 
+3. **Adding content:**  
+   - Use `/add_page` or link on the `/admin` page to create new pages or add blocks to existing ones.  
+   - Uploaded files are stored under `static/uploads/YYYY/MM/DD/` with SHA-256 deduplication.  
+   - If a file with the same hash already exists, it’s reused automatically.
+   - The right column lists comments and allows new ones.  
+
+4. **Editing content:**  
+   - Go to `/edit/<page>` or use link on the `admin` page to modify or delete individual blocks.  
+   - Each block can have its `content` and `position` changed independently.  
+   - New blocks can be added directly from the editor view.
+
+5. **Deleting:**  
+   - Pages or individual blocks can be removed from `/admin` or `/edit/<page>`.  
+   - All deletions are immediate and permanent (no recycle bin).
 ---
 
 ## Media uploads
@@ -197,4 +219,4 @@ Visit `http://localhost:5000` in a browser.
 
 ## License
 
-MIT License © 2025 Mariusz Balewski / TYO Labs
+MIT License © 2025 mabalew

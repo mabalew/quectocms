@@ -94,12 +94,9 @@ h1 {
     color: #000;
 }
 
-.footer_data {
+.footer {
     color: #666;
     font-size: small;
-}
-
-footer {
     margin-top: 40px;
     padding-top: 1px;
     border-top: 1px solid #ccc;
@@ -107,4 +104,17 @@ footer {
     bottom: 5px;
     left: 50%;
     transform: translateX(-50%);
+}
+
+a {
+    text-decoration: none;
+}
+.admin_link {
+    color: #666;
+    font-size: small;
+    margin-top: 40px;
+    padding-top: 1px;
+    position: fixed;
+    bottom: 5px;
+    left: 2em;
 }

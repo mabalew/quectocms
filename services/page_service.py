@@ -39,6 +39,8 @@ class PageService:
         return self.home_service.get_param('title')
     
     def render_page(self, page: str):
+        if page and page == 'admin':
+            return self.render_admin_page(page)
         locale = self.detect_locale()
         site_title = self.home_service.get_param('title')
         if not site_title:
@@ -56,6 +58,22 @@ class PageService:
                 footer_data=footer_data,
                pages = pages
        )
+    
+    def render_admin_page(self, page: str):
+        locale = self.detect_locale()
+        site_title = self.home_service.get_param('title')
+        if not site_title:
+            return redirect(url_for('add_page', lang=locale))
+        footer_data = self.home_service.get_footer_data()
+        pages = self.get_pages_list()
+        return render_template(
+                'admin.html',
+                page=page,
+                locale=locale,
+                site_title=site_title,
+                footer_data=footer_data,
+                pages = pages
+                )
     
     def get_comments_and_footer(self):
         comments = self.comment_service.get_all()
@@ -138,9 +156,58 @@ class PageService:
     def delete(self, page_id: int) -> int:
         return self.page_model.delete(page_id)
     
+    def delete_by_name(self, page_name: str):
+        self.page_model.delete_by_name(page_name)
+        locale = self.detect_locale()
+        return redirect(url_for('admin_page', lang=locale))
+    
+    def render_edit_page(self, page: str):
+        """Render edit pagei: list of blocks + forms."""
+        locale = self.detect_locale()
+        site_title = self.home_service.get_param('title')
+        if not site_title:
+            return redirect(url_for('add_page', lang=locale))
+
+        # context data
+        pages = self.page_model.get_pages_list()
+        comments = self.comment_service.get_all()
+        footer_data = self.home_service.get_footer_data()
+
+        blocks = self.page_model.get_blocks_for_page(page, locale)
+
+        return render_template(
+            'edit_page.html',
+            page=page,
+            locale=locale,
+            site_title=site_title,
+            pages=pages,
+            comments=comments,
+            footer_data=footer_data,
+            blocks=blocks
+        )
+    
+    def save_block(self, block_id: int):
+        """Save of one block (position + content) and return to edit this page."""
+        page = (request.form.get('page') or '').strip()
+        locale = (request.form.get('locale') or '').strip() or self.detect_locale()
+        pos_raw = (request.form.get('position') or '').strip()
+        content = request.form.get('content') or ''
+
+        if not page or not pos_raw.isdigit():
+            return redirect(url_for('edit_page', page=page or 'home', lang=locale))
+
+        self.page_model.update_block(block_id=int(block_id), position=int(pos_raw), content=content)
+        return redirect(url_for('edit_page', page=page, lang=locale))
+
+    def delete_block(self, block_id: int):
+        """Delete one block and return to edit this page."""
+        page = (request.form.get('page') or '').strip()
+        locale = (request.form.get('locale') or '').strip() or self.detect_locale()
+        self.page_model.delete_block_by_id(int(block_id))
+        return redirect(url_for('edit_page', page=page or 'home', lang=locale))
+    
     def media_upload_response(self):
         locale = self.detect_locale()
-        # Dane do kontekstu (żeby stopka/komentarze i menu były dostępne także po POST)
         pages = self.page_model.get_pages_list()
         comments = self.comment_service.get_all()
         footer_data = self.home_service.get_footer_data() or {}
@@ -164,22 +231,18 @@ class PageService:
                     url = f"/static/{existing['rel_path']}"
                     media_result = {"url": url, "sha256": sha, "mime": existing['mime'], "deduplicated": True}
                 else:
-                    # przygotowanie ścieżki docelowej
                     rel_dir = self._date_rel_dir()
-                    prefix = sha[:12]  # czytelny, deterministyczny prefiks z SHA-256
+                    prefix = sha[:12]
                     rel_name = f"{prefix}_{name}{ext}"
                     rel_path = f"{rel_dir}/{rel_name}"
                     abs_dir = Path(STATIC_ROOT) / rel_dir
                     abs_dir.mkdir(parents=True, exist_ok=True)
                     abs_path = Path(STATIC_ROOT) / rel_path
     
-                    # zapis pliku
                     file.save(abs_path)
     
-                    # MIME
                     mime = mimetypes.types_map.get(ext, 'application/octet-stream')
     
-                    # rejestr w DB
                     self.media_service.insert(sha, rel_path, mime)
                     url = f"/static/{rel_path}"
                     media_result = {"url": url, "sha256": sha, "mime": mime, "deduplicated": False}
@@ -188,11 +251,10 @@ class PageService:
             {"url": f"/static/{m['rel_path']}", "mime": m["mime"], "uploaded_at": m["uploaded_at"]}
             for m in self.media_service.recent_from_today_and_yesterday()
         ]
-        # Render tej samej strony add_page (bez PRG – świadomie, bo chcesz od razu pokazać wynik i listę)
         return render_template(
             'add_page.html',
             locale=locale,
-            site_title=site_title,   # może być None – wtedy u góry pokaże się formularz tytułu
+            site_title=site_title,
             pages=pages,
             comments=comments,
             footer_data=footer_data,
