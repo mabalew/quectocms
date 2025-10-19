@@ -1,0 +1,12 @@
+myenv
+venv
+.venv
+.spyproject
+__pycache__/
+*.pyc
+*.bkp
+*backup*
+*.sqlite
+*.db
+static/uploads/
+.env
