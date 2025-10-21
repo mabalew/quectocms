@@ -1,0 +1,31 @@
+      <h2>Upload image</h2>
+      <form method="post" action="{{ url_for('upload_media', lang=locale) }}" enctype="multipart/form-data">
+        <fieldset class="box">
+          <legend>Select file</legend>
+          <input type="file" name="file" required>
+          <div style="margin-top:1rem">
+            <button type="submit">Upload</button>
+          </div>
+        </fieldset>
+      </form>
+
+      {% if media_error %}
+        <p style="color:#b00; margin-top:1rem;">{{ media_error }}</p>
+      {% endif %}
+
+      {% if media_result %}
+        <div class="box" style="margin-top:1rem">
+          <p>File URL (copy & paste into your content):</p>
+          <pre style="white-space:pre-wrap;word-break:break-all;"><code>&lt;img src="{{ media_result.url }}" /&gt;</code></pre>
+          <p>SHA-256: <code>{{ media_result.sha256 }}</code> {% if media_result.deduplicated %}(deduplicated){% endif %}</p>
+        </div>
+      {% endif %}
+
+      <h3 style="margin-top:2rem;">Recent uploads:</h3>
+      {% if recent_media and recent_media|length > 0 %}
+        {% for m in recent_media %}
+                  <img src="{{ m.url }}" width="32px" height="32px" /><code>&lt;img src="{{ m.url }}"/&gt;</code> — {{ m.mime }} — {{ m.uploaded_at }}<br />
+              {% endfor %}
+          {% else %}
+            <p>No recent files.</p>
+          {% endif %}
