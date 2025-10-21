@@ -5,23 +5,18 @@ body {
     padding: 20px;
 }
 
-/* --- ramka wokół tekstu ---*/
 .box {
-  border: 1px solid #ddd;     /* cienka, jasna ramka */
-  border-radius: 8px;         /* zaokrąglone narożniki */
-  padding: 1rem;              /* oddech dla treści */
-  background-color: transparent;           /* opcjonalnie: białe tło */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: transparent;
 }
 
-
-
-/* --- sekcja komentarzy --- */
 .comment {
     border-bottom: 1px solid #ddd;
     padding: 1rem 0;
 }
 
-/* --- identyfikator i nagłówek --- */
 .comment-id {
     color: #888;
     font-size: 0.9em;
@@ -37,24 +32,20 @@ body {
     font-size: 0.9em;
 }
 
-/* --- data --- */
 .comment-header {
     color: #999;
     font-size: 0.85em;
     margin-top: 0.2em;
 }
 
-/* --- treść komentarza --- */
 .comment-content {
     margin-top: 0.4em;
     white-space: pre-wrap;
 }
 
-/* --- lekka separacja pierwszego i ostatniego --- */
 .comment:first-child {
     border-top: 1px solid #ddd;
 }
-
 
 .layout {
     display: flex;
@@ -80,9 +71,9 @@ body {
 }
 
 .comments-scroll {
-  flex: 1;                    /* zajmij pozostałą wysokość */
-  overflow-y: auto;           /* własny scroll tylko tutaj */
-  padding-right: .5rem;       /* żeby scrollbar nie nachodził na treść */
+  flex: 1;
+  overflow-y: auto;
+  padding-right: .5rem;
 }
 .center-column {
     flex: 1;
@@ -108,6 +99,7 @@ h1 {
 
 a {
     text-decoration: none;
+    color: #666;
 }
 .admin_link {
     color: #666;
@@ -117,4 +109,87 @@ a {
     position: fixed;
     bottom: 5px;
     left: 2em;
+}
+
+/* Page edit form */
+.block-card {
+    margin-bottom: 1rem;
+}
+.block-card header {
+    font-weight: 600;
+    margin-bottom: .4rem;
+}
+
+.block-actions {
+    display:flex;
+    gap:.5rem;
+    margin-top:.6rem;
+}
+
+.muted {
+    color:#666;
+    font-size:.9em;
+}
+
+.inline-form {
+    display:inline;
+}
+
+.fields-grid {
+    display:grid;
+    grid-template-columns: 160px 1fr;
+    gap:.6rem 1rem;
+    align-items:start;
+}
+
+.fields-grid label {
+    align-self:center;
+}
+
+.fields-grid .full {
+    grid-column: 1 / -1;
+}
+
+.textarea-admin {
+    width: 70ch;
+    min-height: 180px;
+    font-family: monospace;
+}
+
+.danger {
+    border-color:#d55;
+}
+
+.btn-danger {
+    background:#b31b1b;
+    color:#fff;
+    border:none;
+    padding:.5rem .8rem;
+    border-radius:.5rem;
+    cursor:pointer;
+}
+
+.btn-primary {
+    background:#333;
+    color:#fff;
+    border:none;
+    padding:.5rem .8rem;
+    border-radius:.5rem;
+    cursor:pointer;
+}
+
+.btn-secondary {
+    background:#eee;
+    color:#222;
+    border:1px solid #ccc;
+    padding:.5rem .8rem;
+    border-radius:.5rem;
+    cursor:pointer;
+}
+
+.hr {
+    height:1px;
+    background:#e5e5e5;
+    border:0;
+    margin:1rem 0;
 }

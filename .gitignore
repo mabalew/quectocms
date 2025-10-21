@@ -10,3 +10,6 @@ __pycache__/
 *.db
 static/uploads/
 .env
+*.tar
+*.gz
+*.tgz
