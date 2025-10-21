@@ -19,8 +19,8 @@ class MediaService:
     def get_by_hash(self, sha256: str) -> Optional[Dict]:
         return self.media_model.get_by_hash(sha256)
     
-    def recent_from_today_and_yesterday(self) -> List[Dict]:
-        return self.media_model.recent_from_today_and_yesterday()
+    def recent(self) -> List[Dict]:
+        return self.media_model.recent()
     
     def _norm_filename(self, filename: str) -> str:
         fn = secure_filename(filename or '').lower()

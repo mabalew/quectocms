@@ -103,7 +103,7 @@ class PageService:
         footer_data = self.home_service.get_footer_data()
         recent_media = [
             {"url": f"/static/{m['rel_path']}", "mime": m["mime"], "uploaded_at": m["uploaded_at"]}
-            for m in self.media_service.recent_from_today_and_yesterday()
+            for m in self.media_service.recent()
         ]
 
         if request.method == 'POST':
@@ -249,7 +249,7 @@ class PageService:
     
         recent_media = [
             {"url": f"/static/{m['rel_path']}", "mime": m["mime"], "uploaded_at": m["uploaded_at"]}
-            for m in self.media_service.recent_from_today_and_yesterday()
+            for m in self.media_service.recent()
         ]
         return render_template(
             'add_page.html',

@@ -43,17 +43,14 @@ class MediaModel:
             """, (sha256, rel_path, mime))
             return cur.lastrowid
 
-    def recent_from_today_and_yesterday(self) -> List[Dict]:
+    def recent(self) -> List[Dict]:
         # rekordy z dzisiaj i wczoraj wg czasu lokalnego
         with sqlite3.connect(self.db_name) as conn:
             cur = conn.execute("""
                 SELECT id, sha256, rel_path, mime, uploaded_at
                 FROM media
-                WHERE DATE(uploaded_at, 'localtime') IN (
-                    DATE('now','localtime'),
-                    DATE('now','localtime','-1 day')
-                )
                 ORDER BY uploaded_at DESC
+                LIMIT 25
             """)
             rows = cur.fetchall()
             print(rows)
