@@ -172,7 +172,10 @@ class PageService:
         pages = self.page_model.get_pages_list()
         comments = self.comment_service.get_all()
         footer_data = self.home_service.get_footer_data()
-
+        recent_media = [
+            {"url": f"/static/{m['rel_path']}", "mime": m["mime"], "uploaded_at": m["uploaded_at"]}
+            for m in self.media_service.recent()
+        ]
         blocks = self.page_model.get_blocks_for_page(page, locale)
 
         return render_template(
@@ -183,6 +186,7 @@ class PageService:
             pages=pages,
             comments=comments,
             footer_data=footer_data,
+            recent_media=recent_media,
             blocks=blocks
         )
     
@@ -262,6 +266,28 @@ class PageService:
             media_error=error,
             recent_media=recent_media
             )
+    
+    def media_delete_response(self, rel_path: str, locale: str):
+        self.media_service.delete(rel_path, locale)
+        locale = self.detect_locale()
+        site_title = self._site_title()
+        pages = self.page_model.get_pages_list()
+        comments = self.comment_service.get_all()
+        footer_data = self.home_service.get_footer_data()
+        recent_media = [
+            {"url": f"/static/{m['rel_path']}", "mime": m["mime"], "uploaded_at": m["uploaded_at"]}
+            for m in self.media_service.recent()
+        ]
+        return render_template(
+            'add_page.html',
+            locale=locale,
+            site_title=site_title,
+            pages=pages,
+            comments=comments,
+            footer_data=footer_data,
+            recent_media=recent_media
+            )
+        
     
     def _date_rel_dir(self) -> str:
         now = datetime.datetime.now()

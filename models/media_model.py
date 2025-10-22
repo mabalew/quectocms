@@ -42,6 +42,13 @@ class MediaModel:
                 INSERT INTO media(sha256, rel_path, mime) VALUES(?,?,?)
             """, (sha256, rel_path, mime))
             return cur.lastrowid
+        
+    def delete(self, rel_path: str) -> int:
+        with sqlite3.connect(self.db_name) as conn:
+            cur = conn.execute("""
+                              DELETE FROM media WHERE rel_path=?;
+            """, (rel_path,))
+            return cur.rowcount
 
     def recent(self) -> List[Dict]:
         # rekordy z dzisiaj i wczoraj wg czasu lokalnego
