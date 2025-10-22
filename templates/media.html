@@ -22,10 +22,11 @@
       {% endif %}
 
       <h3 style="margin-top:2rem;">Recent uploads:</h3>
-      {% if recent_media and recent_media|length > 0 %}
-        {% for m in recent_media %}
-                  <img src="{{ m.url }}" width="32px" height="32px" /><code>&lt;img src="{{ m.url }}"/&gt;</code> — {{ m.mime }} — {{ m.uploaded_at }}<br />
-              {% endfor %}
-          {% else %}
-            <p>No recent files.</p>
-          {% endif %}
+        {% if recent_media and recent_media|length > 0 %}
+          {% for m in recent_media %}
+            <img src="{{ m.url }}" width="32px" height="32px" /><code>&lt;img src="{{ m.url }}"/&gt;</code> — {{ m.mime }} — {{ m.uploaded_at }}
+            <a href="/delete_media/{{ m.url }}">delete</a><br />
+          {% endfor %}
+        {% else %}
+        <p>No recent files.</p>
+      {% endif %}

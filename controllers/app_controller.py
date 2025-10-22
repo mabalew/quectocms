@@ -9,6 +9,7 @@ from flask import  request, jsonify, redirect, url_for
 from services.comment_service import CommentService
 from services.home_service import HomeService
 from services.page_service import PageService
+from services.media_service import MediaService
 from auth import requires_basic_auth
 
 class AppController:
@@ -19,6 +20,7 @@ class AppController:
         self.comment_service = CommentService()
         self.home_service = HomeService()
         self.page_service = PageService()
+        self.media_service = MediaService()
         self.setup_routes()
 
     def setup_routes(self):
@@ -64,7 +66,8 @@ class AppController:
         @self.app.route('/delete/<page>')
         @requires_basic_auth
         def delete(page: str):
-            return self.page_service.delete_by_name(page)
+            locale= self.page_service.detect_locale()
+            return self.page_service.delete_by_name(page, locale)
         
         @self.app.route('/add_comment', methods=['POST'])
         def add_comment():
@@ -81,8 +84,14 @@ class AppController:
             return jsonify({ 'comments': comments })
         
         @self.app.route('/upload_media', methods=['POST'])
+        @requires_basic_auth
         def upload_media():
             return self.page_service.media_upload_response()
+        
+        @self.app.route('/delete_media/<path:rel_path>', methods=['GET'])
+        @requires_basic_auth
+        def delete_media(rel_path: str):
+            return self.page_service.media_delete_response(rel_path, self.page_service.detect_locale())
         
         @self.app.route('/admin')
         @requires_basic_auth

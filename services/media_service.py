@@ -8,6 +8,9 @@ Created on Sat Oct 18 18:55:54 2025
 import hashlib
 from typing import Optional, List, Dict
 from werkzeug.utils import secure_filename
+from flask import redirect, url_for
+from urllib.parse import unquote
+from pathlib import Path
 
 from models.media_model import MediaModel
 
@@ -35,3 +38,21 @@ class MediaService:
     
     def insert(self, sha256: str, rel_path: str, mime: str) -> int:
         return self.media_model.insert(sha256, rel_path, mime)
+    
+    def delete(self, rel_path: str, locale: str) -> int:
+        STATIC_ROOT = 'static'
+
+        rel_path = unquote(rel_path)
+        if rel_path.startswith('/static/'):
+            rel_path = rel_path[len('/static/'):]
+        elif rel_path.startswith('static/'):
+            rel_path = rel_path[len('static/'):]
+            
+        # delete file from disk
+        abs_path = Path(STATIC_ROOT) / rel_path
+        try:
+            abs_path.unlink()
+        except FileNotFoundError:
+            pass
+        self.media_model.delete(rel_path)
+        return redirect(url_for('admin_page', lang=locale))
