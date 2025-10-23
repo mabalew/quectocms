@@ -35,7 +35,7 @@
                     <legend>Edit or delete page</legend>
                   {% if pages %}
                       {% for p in pages %}
-                          <a href="{{ url_for('show_page', page=p, lang=locale) }}">{{ p.capitalize() }}</a>&nbsp;<a href="/edit/{{p}}">Edit</a>&nbsp;<a href="/delete/{{p}}">Delete</a>
+                          <div><a href="{{ url_for('show_page', page=p, lang=locale) }}">{{ p.capitalize() }}</a>&nbsp;<a href="/edit/{{p}}">Edit</a>&nbsp;<a href="/delete/{{p}}">Delete</a></div>
                       {% endfor %}
                   {% else %}
                       <p>No content yet</p>

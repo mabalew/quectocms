@@ -129,10 +129,11 @@ class PageService:
             position = (request.form.get('position') or '').strip()
             content = (request.form.get('content') or '').strip()
             page_order = (request.form.get('page_order') or '').strip()
+
             if page and position.isdigit() and page_order.isdigit() and content:
                 self.page_model.add(page, locale, int(position), int(page_order), content)
-                return redirect(url_for('show_page', page=page, lang=locale))
-
+                return self.render_edit_page(page)
+            
             # no content -> show form
             return render_template('add_page.html',
                                    locale=locale,
