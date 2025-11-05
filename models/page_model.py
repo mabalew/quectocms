@@ -21,12 +21,12 @@ class PageModel:
             cursor.execute("""
                        CREATE TABLE IF NOT EXISTS pages (
                            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-                          page          TEXT    NOT NULL,               -- np. 'home', 'about'
+                          page          TEXT    NOT NULL,
                           page_order INTEGER NOT NULL,
-                          locale        TEXT    NOT NULL DEFAULT 'pl',  -- opcjonalnie i18n
-                          content       TEXT    NOT NULL,               -- TEXT zamiast BLOB dla HTML/Markdown
-                          position      INTEGER NOT NULL DEFAULT 0,     -- jeśli chcesz sortowanie segmentów
-                          UNIQUE(page, locale, position)                 -- klucz naturalny
+                          locale        TEXT    NOT NULL DEFAULT 'pl',
+                          content       TEXT    NOT NULL,
+                          position      INTEGER NOT NULL DEFAULT 0,
+                          UNIQUE(page, locale, position)
                           )
                        """)
 
