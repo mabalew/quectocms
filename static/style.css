@@ -150,6 +150,10 @@ a {
     grid-column: 1 / -1;
 }
 
+fieldset {
+    margin-top: 5px;
+}
+
 .textarea-admin {
     width: 70ch;
     min-height: 180px;
