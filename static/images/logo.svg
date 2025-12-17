@@ -1,0 +1,42 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a192f" />
+      <stop offset="100%" stop-color="#1e3a5f" />
+    </linearGradient>
+    
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Ciemnogranatowe tło -->
+  <rect width="128" height="128" fill="url(#bgGradient)" />
+  
+  <!-- Sześciokąt - współrzędne przeskalowane do 128px -->
+  <polygon 
+    points="64,25.6 102.4,44.8 102.4,83.2 64,102.4 25.6,83.2 25.6,44.8"
+    fill="none"
+    stroke="#e0e0e0"
+    stroke-width="1.5"
+    stroke-linejoin="round"
+    filter="url(#glow)"
+  />
+  
+  <!-- Tekst QCMS -->
+  <g font-family="Arial, sans-serif" font-weight="300" fill="#e0e0e0">
+    <!-- Litera Q -->
+    <text x="64" y="54.4" text-anchor="middle" font-size="20.5" letter-spacing="1.5">
+      Q
+    </text>
+    
+    <!-- Reszta tekstu CMS -->
+    <text x="64" y="76.8" text-anchor="middle" font-size="15.5" letter-spacing="1">
+      CMS
+    </text>
+  </g>
+</svg>
