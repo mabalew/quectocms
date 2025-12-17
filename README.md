@@ -1,3 +1,4 @@
+![QCMS Logo](static/images/logo.svg)
 # quectoCMS
 
 quectoCMS is a minimalist CMS built with Python 3, Flask, and SQLite.  
