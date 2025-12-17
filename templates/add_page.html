@@ -27,17 +27,23 @@
     </aside>
 
     <main class="center-column">
-      {% if not site_title %}
-        <h1>Set site title</h1>
+      {% if not site_title or not site_domain%}
+        <h1>Set setup</h1>
         <form method="post" action="{{ url_for('add_page', lang=locale) }}">
           <label>Title<br>
-            <input type="text" name="title" required>
+            <input type="text" name="title"  value="{{ site_title or '' }}" required>
           </label>
           <div style="margin-top:1rem">
-            <button type="submit">Save title</button>
+            <label>Domain<br>
+              <input type="text" name="domain" value="{{ site_domain or '' }}" required>
+            </label>
+          </div>
+          <div style="margin-top:1rem">
+              <button type="submit">Save</button>
           </div>
         </form>
-      {% else %}
+      {% endif %}
+      {% if site_title and site_domain %}
         <h1>Site title: {{ site_title }}</h1>
         <form method="post" action="{{ url_for('add_page', lang=locale) }}">
           <fieldset style="border:1px solid #ddd;border-radius:8px;padding:1rem">

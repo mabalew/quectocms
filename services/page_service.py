@@ -38,12 +38,16 @@ class PageService:
     def _site_title(self) -> str | None:
         return self.home_service.get_param('title')
     
+    def _site_domain(self)->str | None:
+        return self.home_service.get_param('domain')
+    
     def render_page(self, page: str):
         if page and page == 'admin':
             return self.render_admin_page(page)
         locale = self.detect_locale()
-        site_title = self.home_service.get_param('title')
-        if not site_title:
+        site_title = self._site_title()
+        site_domain = self._site_domain()
+        if not site_title or not site_domain:
             return redirect(url_for('add_page', lang=locale))
         blocks = self.get(page, locale)
         comments, footer_data = self.get_comments_and_footer()
@@ -54,6 +58,7 @@ class PageService:
                 locale=locale,
                 blocks=blocks,
                 site_title=site_title,
+                site_domain=site_domain,
                 comments=comments,
                 footer_data=footer_data,
                pages = pages
@@ -61,8 +66,9 @@ class PageService:
     
     def render_admin_page(self, page: str):
         locale = self.detect_locale()
-        site_title = self.home_service.get_param('title')
-        if not site_title:
+        site_title = self._site_title()
+        site_domain = self._site_domain()
+        if not site_title or not site_domain:
             return redirect(url_for('add_page', lang=locale))
         footer_data = self.home_service.get_footer_data()
         pages = self.get_pages_list()
@@ -71,6 +77,7 @@ class PageService:
                 page=page,
                 locale=locale,
                 site_title=site_title,
+                site_domain=site_domain,
                 footer_data=footer_data,
                 pages = pages
                 )
@@ -98,6 +105,7 @@ class PageService:
         """
         locale = self.detect_locale()
         site_title = self._site_title()
+        site_domain = self._site_domain()
         pages = self.page_model.get_pages_list()
         comments = self.comment_service.get_all()
         footer_data = self.home_service.get_footer_data()
@@ -108,16 +116,20 @@ class PageService:
 
         if request.method == 'POST':
             # if there's not title, try to set it up
-            if not site_title:
+            if not site_title or not site_domain:
                 new_title = (request.form.get('title') or '').strip()
-                if new_title:
+                new_domain = (request.form.get('domain') or '').strip()
+                if new_title and new_domain:
                     self.home_service.set_param('title', new_title)
+                    self.home_service.set_param('domain', new_domain)
                     site_title = new_title
+                    site_domain = new_domain
                 else:
                     # no title -> show our form again
                     return render_template('add_page.html',
                                            locale=locale,
                                            site_title=None,
+                                           site_domain=None,
                                            pages=pages,
                                            comments=comments,
                                            recent_media=recent_media,
@@ -138,6 +150,7 @@ class PageService:
             return render_template('add_page.html',
                                    locale=locale,
                                    site_title=site_title,
+                                   site_domain=site_domain,
                                    pages=pages,
                                    comments=comments,
                                    recent_media=recent_media,
@@ -148,6 +161,7 @@ class PageService:
         return render_template('add_page.html',
                                locale=locale,
                                site_title=site_title,
+                               site_domain=site_domain,
                                pages=pages,
                                comments=comments,
                                recent_media=recent_media,
@@ -165,8 +179,9 @@ class PageService:
     def render_edit_page(self, page: str):
         """Render edit pagei: list of blocks + forms."""
         locale = self.detect_locale()
-        site_title = self.home_service.get_param('title')
-        if not site_title:
+        site_title = self._site_title()
+        site_domain = self._site_domain()
+        if not site_title or not site_domain:
             return redirect(url_for('add_page', lang=locale))
 
         # context data
@@ -184,6 +199,7 @@ class PageService:
             page=page,
             locale=locale,
             site_title=site_title,
+            site_domain=site_domain,
             pages=pages,
             comments=comments,
             footer_data=footer_data,
@@ -216,7 +232,8 @@ class PageService:
         pages = self.page_model.get_pages_list()
         comments = self.comment_service.get_all()
         footer_data = self.home_service.get_footer_data() or {}
-        site_title = self.home_service.home_model.get_param('title')
+        site_title = self._site_title()
+        site_domain = self._site_domain()
 
         file = request.files.get('file')
         media_result = None
@@ -260,6 +277,7 @@ class PageService:
             'add_page.html',
             locale=locale,
             site_title=site_title,
+            site_domain=site_domain,
             pages=pages,
             comments=comments,
             footer_data=footer_data,
@@ -272,6 +290,7 @@ class PageService:
         self.media_service.delete(rel_path, locale)
         locale = self.detect_locale()
         site_title = self._site_title()
+        site_domain = self._site_domain()
         pages = self.page_model.get_pages_list()
         comments = self.comment_service.get_all()
         footer_data = self.home_service.get_footer_data()
@@ -283,6 +302,7 @@ class PageService:
             'add_page.html',
             locale=locale,
             site_title=site_title,
+            site_domain=site_domain,
             pages=pages,
             comments=comments,
             footer_data=footer_data,
