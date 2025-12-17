@@ -12,7 +12,7 @@ from flask import request, Response
 from werkzeug.security import check_password_hash
 
 ADMIN_USER = os.getenv("ADMIN_USER", "admin")
-# wygeneruj hash np. w pythonie:
+# generate hash ie. in python:
 # >>> from werkzeug.security import generate_password_hash
 # >>> generate_password_hash("yourStrongPassword")
 ADMIN_PASS_HASH = os.getenv("ADMIN_PASS_HASH", "pbkdf2:sha256:260000$...")
